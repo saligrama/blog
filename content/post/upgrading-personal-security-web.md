@@ -9,8 +9,6 @@ tags: []
 categories: []
 ---
 
-# Motivation
-
 I'm someone who's been reasonably technical for a long time, but was not really interested in security until about a year and a half ago. This means I had a lot of configuration set up for convenience, but without much in the way of security.
 
 In the last few weeks, I started to change that and significantly upgraded my personal security. This post covers the first steps I took towards that end, starting with password generation and better two-factor authentication.

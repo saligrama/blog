@@ -9,8 +9,6 @@ tags: []
 categories: []
 ---
 
-# Motivation
-
 This is a continuation of my [previous post](/blog/post/upgrading-personal-security-web) about upgrading personal security. This post focuses on preventing [evil maid attacks](https://en.wikipedia.org/wiki/Evil_maid_attack) using disk encryption and secure boot.
 
 With this post, I compiled and summarized all of the resources I used to do all of this configuration. The hope is that having a set of steps in one place reduces the need to go hunting across different Reddit posts, blog posts, and wiki articles as I did.
