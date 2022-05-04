@@ -16,7 +16,7 @@ e2fsck -f /dev/nvme0n1p4
 
 # 2. Reduce filesystem size by 32M 
 #    to make space for the LUKS header
-resize2fs -p /dev/nvme0n1p4 $(expr `fdisk -l | grep nvme0n1p4 | awk '{print $4}'` - 32768)
+resize2fs -p /dev/nvme0n1p4 $(expr `fdisk -l | grep nvme0n1p4 | awk '{print $4}'` - 32768)s
 
 # 3. Encrypt the partition, reducing partition size by 32M.
 #    Give it a secure password when requested.
