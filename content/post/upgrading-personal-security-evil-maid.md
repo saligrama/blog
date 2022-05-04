@@ -179,10 +179,13 @@ A [Unified Kernel Image](https://wiki.archlinux.org/title/Unified_kernel_image) 
 Setting one up and configuring your system to boot from it is not particularly difficult. Morten Linderud/Foxboron, an Arch Linux maintainer, has a great [guide](https://linderud.dev/blog/mkinitcpio-v31-and-uefi-stubs/) on the subject. To summarize:
 
 1. Edit `/etc/mkinitcpio.d/linux.preset`
-    - Add `ALL_microcode=(/boot/*-ucode.img)`
-    - Add `default_efi_image="/boot/EFI/Linux/linux.efi"`
-    - Add `default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"`
-    - Add `fallback_efi_image="/boot/EFI/Linux/fallback.efi"`
+    - Add the following lines:
+        ```
+        ALL_microcode=(/boot/*-ucode.img)
+        default_efi_image="/boot/EFI/Linux/linux.efi"
+        default_options="--splash /usr/share/systemd/bootctl/splash-arch.bmp"
+        fallback_efi_image="/boot/EFI/Linux/fallback.efi"
+        ```
     - Edit the line starting with `fallback_options` to contain
         ```
         fallback_options="-S autodetect --splash /usr/share/systemd/bootctl/splash-arch.bmp"
