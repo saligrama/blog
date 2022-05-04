@@ -27,10 +27,7 @@ An evil maid attack is a situation where an attacker has physical access to a de
 
 Even with any one of these devices in their possession, the adversary should never be able to access any of our data or accounts. Additionally, we should not be locked out of our own accounts even with one device missing.
 
-SUGGESTION: add the obligatory disclaimer: full physical security is impossible
-on consumer x86 devices.  this is a best effort using commonly available tools
-and methods, and will definitely not fully protect against a determined
-adversary
+**Disclaimer**: Full physical security is impossible to achieve on standard consumer laptops. This is a best effort using commonly available tools and methods, and will not protect against a determined (e.g. nation-state) adversary.
 
 # Recap: hardware
 
