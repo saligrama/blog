@@ -3,8 +3,13 @@
     src: url('https://cdn.jsdelivr.net/gh/saligrama/blog@master/assets/fonts/TTF/IBMPlexSans-Regular.ttf');
 }
 
+@font-face {
+    font-family: 'Iosevka Saligrama Extended';
+    src: url('https://cdn.jsdelivr.net/gh/saligrama/blog@master/assets/fonts/TTF/iosevka-custom-extended.ttf');
+}
+
 $body-font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-$mono-font: 'Fira Code', 'SF Mono', 'Cascadia Code', 'Consolas', monospace, $body-font;
+$mono-font: 'Iosevka Saligrama Extended', 'SF Mono', 'Cascadia Code', 'Consolas', monospace, $body-font;
 
 $light-color-primary: #619e4c;
 $light-color-secondary: #c76680;
