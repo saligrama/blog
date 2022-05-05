@@ -29,14 +29,14 @@ Even with any one of these devices in their possession, the adversary should nev
 
 # Recap: hardware
 
-The physical hardware I have salient to this post are:
+To recap, I'll be using the following hardware for this post:
 
 * Laptop: Lenovo ThinkPad X1 Carbon Gen 9
     - Runs a dual-boot setup with Arch Linux and Windows 11
     - Initially, both the Linux and Windows partitions were unencrypted
 * Hardware security key: YubiKey 5C NFC
 
-# Stage three: Linux disk encryption with YubiKey authentication
+# Stage three: Linux disk encryption with FIDO2/YubiKey authentication
 
 These instructions will demonstrate how to encrypt the Linux partition in-place. If you were smarter than me when you initially set up the laptop and encrypted the disk, skip to the next step.
 
@@ -123,7 +123,7 @@ nvme0n1     259:0    0 476.9G  0 disk
 └─nvme0n1p5 259:5    0  1000M  0 part  
 ```
 
-## Disk decryption with a YubiKey
+## Disk decryption with FIDO2/YubiKey
 
 Since `systemd` version 248 (March 2021), it has been [possible](https://0pointer.net/blog/unlocking-luks2-volumes-with-tpm2-fido2-pkcs11-security-hardware-on-systemd-248.html) to enroll a YubiKey as a way to do LUKS decryption at boot. Doing so only takes a few steps on your running system (no need for a live USB here).
 

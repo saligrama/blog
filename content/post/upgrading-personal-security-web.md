@@ -51,7 +51,7 @@ Addressing the remote threat model will be the subject of this post, whereas the
 
 ## Hardware
 
-The physical hardware I have salient to this post are:
+For this post, I'll be using the following hardware:
 
 * Laptop: Lenovo ThinkPad X1 Carbon Gen 9
 * Phone: Apple iPhone 13 Pro Max
