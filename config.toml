@@ -33,6 +33,7 @@ post = "/:section/:filename/" # Custom post links, e.g. "/:year/:month/:title/"
 author = "Aditya Saligrama"                # You can also set author in post front matter individually
 subTitle = "Thoughts, guides and fun from a security/systems enthusiast @ Stanford"
 defaultTheme = "auto"              # default theme when first visit (auto|dark|light)
+disableDarkImage = "true"
 
 # Source URL of the website, will appear in the footer
 sourceURL = "https://github.com/saligrama/blog"
