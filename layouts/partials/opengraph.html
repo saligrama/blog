@@ -30,11 +30,13 @@
     <meta property="og:image" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&date={{ $date }}&words={{ .WordCount }}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&date={{ $date }}&words={{ .WordCount }}" />
+    <meta name="twitter:image:src" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&date={{ $date }}&words={{ .WordCount }}" />
 {{- else -}}
 {{- if ne .WordCount 0 }}
     <meta property="og:image" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&words={{ .WordCount }}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&words={{ .WordCount }}" />
+    <meta name="twitter:image:src" content="https://opengraph-generators.vercel.app/api/blog?title={{ .Params.title }}&words={{ .WordCount }}" />
 {{- else -}}
     <meta property="og:image" content="https://opengraph-generators.vercel.app/api/blog" />
     <meta name="twitter:card" content="summary_large_image" />
