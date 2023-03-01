@@ -1,7 +1,7 @@
 ---
 title: "A student's dream: hacking (then fixing) Gradescope's autograder"
 #description: <descriptive text here>
-date: 2023-02-23T00:00:00-08:00
+date: 2023-02-28T20:20:00-08:00
 draft: false
 showToc: true
 image: ""
