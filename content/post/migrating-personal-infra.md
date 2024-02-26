@@ -1,7 +1,7 @@
 ---
 title: "Migrating Personal Infra to Cloudflare with No Downtime"
 #description: <descriptive text here>
-date: 2024-02-25T10:20:00-08:00
+date: 2024-02-25T19:00:00-08:00
 draft: false
 showToc: true
 image: ""
@@ -11,7 +11,7 @@ categories: []
 
 I acquired my personal domain `saligrama.io` in August 2018, and since then, I've used a number of different providers to manage its DNS records as well as the hosting infrastructure hanging off of it.
 
-Recently, I decided to migrate as much of this infra as I could to Cloudflare. This post describes the migration process that enabled me to move everything over smoothly without any downtime, all while using Terraform to systematize the resources with infrastructure-as-code.
+Recently, I decided to migrate as much of this infrastructure as I could to Cloudflare. This post describes the migration process that enabled me to move everything over smoothly without any downtime, all while using Terraform to systematize the resources with infrastructure-as-code.
 
 <!--more-->
 
@@ -41,6 +41,8 @@ Compared to more modern solutions, GitHub Pages is fairly limited.
 * There's no ability to run minimal serverless functions if I later on want to add extra functionality that needs it.
 
 [Cloudflare Pages](https://pages.cloudflare.com/) gives me a lot more flexibility for the above. I've been successfully using it to host some of the infrastructure for CS 40, including the main course website and resource provisioner.
+
+Cloudflare Pages hosting also supports some nice bleeding-edge features, including HTTP/3 support.
 
 Moreover, given my Namecheap domain discount expired several years ago, I wasn't saving any money by continuing to register `saligrama.io` there. Moving the domain registration and records would unlock some extra functionality Cloudflare offers, even if I didn't have any current uses for it.
 
