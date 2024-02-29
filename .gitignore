@@ -146,3 +146,4 @@ dist
 .pnp.*
 
 .dev.vars
+.wrangler

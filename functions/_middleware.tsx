@@ -140,7 +140,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         }),
         'meta[property="article:published_time"]': (props) => ({
           element(element: Element) {
-            props.date = moment(element.getAttribute("content")).format("MMMM D, YYYY") ?? "";
+            props.date = moment(element.getAttribute("content")).utcOffset(-8).format("MMMM D, YYYY") ?? "";
           }
         }),
         'meta[property="article:word_count"]': (props) => ({
