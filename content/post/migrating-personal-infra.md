@@ -27,7 +27,11 @@ Between 2018 and 2022, I created a number of static Hugo sites all hosted on Git
 
 My main email account also hangs off the `saligrama.io` domain on a [Google Workspace Business Standard](https://workspace.google.com/pricing.html) plan.
 
-Over the years, I've also used the domain as a convenient way to link to other resources, such as some initial test resources for [CS 40](https://infracourse.cloud). Currently, the only such active resource is [CatShare](https://catshare.saligrama.io), a deliberately vulnerable website I use for security demos at Stanford. This is currently hosted on a Digital Ocean droplet, though I might look for a more serverless hosting solution in the near future.
+Over the years, I've also used the domain as a convenient way to link to other resources, such as some initial test resources for [CS 40](https://infracourse.cloud). Currently, the only such active resource is [CatShare](https://catshare.saligrama.io), a deliberately vulnerable website I use for security demos at Stanford. This had been hosted on a Digital Ocean droplet using Nginx and `docker-compose`.
+
+Another bit of infra that I had was a service that would generate [OpenGraph](https://ogp.me/) images for this blog dynamically given a title, a date, and a word count. This was hosted on Vercel using their OpenGraph image generation [library](https://vercel.com/docs/functions/og-image-generation), and was a little insecure given that anyone could make a request to that service and make it appear that I had arbitrary, possibly unhinged blog post titles.
+
+![Dangerous Clickbait Title That Looks Authentic](/blog/images/og-fake.png)
 
 # Motivation
 
@@ -340,6 +344,140 @@ For every GitHub pages site, I simply clicked "Unpublish" under Settings > Pages
 
 I also removed the GitHub site verification record from Terraform, applying that configuration.
 
+# More Technically Involved Migrations
+
+## OpenGraph image generator
+
+As it turns out, one extra plugin that Cloudflare Pages supports is an [OpenGraph image generator](https://developers.cloudflare.com/pages/functions/plugins/vercel-og/) that conveniently is also backed by the same Vercel library I was using. Thus, I could port my service over by attaching it as a [middleware function](https://github.com/saligrama/blog/blob/main/functions/_middleware.tsx) within the blog Pages deployment.
+
+This function uses Cloudflare's HTML extraction functionality to extract the title, date, and word count from any Hugo page it serves. It then renders a React component into an image using the Vercel library (exactly what my previous service was doing) and attaches that with another HTML tag.
+
+The main advantage here was that the renderer only activates on existing blog posts (and not arbitrary content), and that we can better take advantage of Cloudflare's caching of the overall website content along with the OpenGraph image.
+
+The primary technical difficulty here ended up being making the renderer access the IBM Plex Sans font. This required me to use Adobe Fonts to download the font file, and wrap the rendering `PagesFunction` in another `PagesFunction` so I could actually unwrap the `fetch` `Promise` when retrieving the font.
+
+## CatShare
+
+By virtue of being hosted on a Digital Ocean droplet, CatShare was costing me $7/mo, or $84/yr. CatShare, as originally written, was a NodeJS service using Express, but the backend was "thin" in that there was no database dependency and it was mainly rendering static pages.
+
+I'd already dockerized the service back in October, and so the easiest migration would have been to host the Docker image on a container hosting platform like Fly.io. However, Fly.io's cheapest "Hobby" plan is $5/mo, which didn't offer much in the way of cost savings.
+
+Instead, I ended up refactoring CatShare into yet another Cloudflare Pages Functions [project](https://github.com/saligrama/catshare-serverless). I couldn't straightforwardly port the existing NodeJS/Express app, since the Cloudflare Workers/Functions runtime's [support](https://developers.cloudflare.com/workers/runtime-apis/nodejs/) for NodeJS APIs is still a work in progress. But since the original app was already in JS, rewriting it into a Cloudflare Function only took an afternoon, and adding TypeScript helped make it more robust.
+
+I also added a [Cloudflare D1](https://developers.cloudflare.com/d1/) serverless SQL database to store some of the data I had previously been keeping in static JS files. While I haven't added any new functionality using D1 yet, this does give me the opportunity to add SQL injection as a "feature" for workshop use. I might add support for this later on if I can figure out how to ensure that the database remains read-only even when SQL syntax is injected into queries.
+
+Deploying CatShare as a Pages Function was another straightforward Terraform declaration to create the project, the D1 database, the domain name, and the DNS record.
+
+```hcl
+// sites.tf
+
+resource "cloudflare_pages_project" "catshare" {
+  account_id        = var.cloudflare_account_id
+  name              = "catshare"
+  production_branch = "main"
+
+  source {
+    type = "github"
+    config {
+      owner                         = "saligrama"
+      repo_name                     = "catshare-serverless"
+      production_branch             = "main"
+      deployments_enabled           = true
+      production_deployment_enabled = true
+    }
+  }
+
+  deployment_configs {
+    production {
+      d1_databases = {
+        USERS_DB = cloudflare_d1_database.catshare_db.id
+      }
+    }
+  }
+}
+
+resource "cloudflare_d1_database" "catshare_db" {
+  account_id = var.cloudflare_account_id
+  name       = "catshare"
+}
+
+resource "cloudflare_pages_domain" "catshare" {
+  account_id   = var.cloudflare_account_id
+  project_name = cloudflare_pages_project.catshare.name
+  domain       = "catshare.saligrama.io"
+}
+```
+
+```hcl
+// dns.tf
+
+resource "cloudflare_record" "catshare_saligrama_io_cf_pages" {
+  zone_id = cloudflare_zone.saligrama_io.id
+  type    = "CNAME"
+  name    = "catshare"
+  value   = cloudflare_pages_project.catshare.subdomain
+  proxied = true
+}
+```
+
+## sad.singles
+
+[sad.singles](https://sad.singles) is a toy project. I'm intentionally going to avoid explaining what it does, because you should totally click the link :)
+
+The project was initially hosted by [Glen Husman](https://github.com/glen3b), who had purchased the domain name from Namecheap last year and set up a simple Python script running on Google App Engine to do the IP-based redirect behavior. When he ran out of Google Cloud credits, the project was transitioned to a singular static redirect configured on the Namecheap end. 
+
+During the course of my other migrations, I realized I could rehost the project for free using (you guessed it) a Cloudflare Pages Function. Rewriting the Python script in Typescript was quick, and I also added a fun easter egg where you can set your `X-Forwarded-For` header to experience the behavior from an IP address of your choosing.
+
+> Aside: the header that conveys the user IP to the function (`CF-Connecting-IP`) can't be spoofed; when you try to do this, Cloudflare will instantly return you a 403 forbidden error. I decided to name the header `X-Forwarded-For` as a homage to a spoofing attack on a [vulnerability](https://github.com/robromano/django-adminrestrict/issues/21) in `django-adminrestrict` that I conducted during a [Stanford Security Clinic](https://securityclinic.org) engagement.
+
+Deploying this followed the same process as some of my other website infrastructure. I set up the hosted zone, had Glen point the nameservers on the Namecheap end to the Cloudflare nameservers, and then deployed the Pages project and domain name, all using Terraform.
+
+```hcl
+// dns.tf
+
+resource "cloudflare_zone" "root_sad_singles" {
+  account_id = var.cloudflare_account_id
+  zone       = "sad.singles"
+}
+
+resource "cloudflare_record" "root_sad_singles" {
+  zone_id = cloudflare_zone.root_sad_singles.id
+  name    = "@"
+  value   = cloudflare_pages_project.sadsingles.subdomain
+  type    = "CNAME"
+  proxied = true
+}
+```
+
+```hcl
+// sites.tf
+
+resource "cloudflare_pages_project" "sadsingles" {
+  account_id        = var.cloudflare_account_id
+  name              = "sadsingles"
+  production_branch = "main"
+
+  source {
+    type = "github"
+    config {
+      owner                         = "saligrama"
+      repo_name                     = "sadsingles"
+      production_branch             = "main"
+      deployments_enabled           = true
+      production_deployment_enabled = true
+    }
+  }
+}
+
+resource "cloudflare_pages_domain" "sadsingles" {
+  account_id   = var.cloudflare_account_id
+  project_name = cloudflare_pages_project.sadsingles.name
+  domain       = "sad.singles"
+}
+```
+
+Since the domain expiry date was coming up in the next few days, Glen also transferred me the domain registration, and this is also registered with Cloudflare now.
+
 # Reflections
 
 This ended up being a fairly seamless migration. The key insight is that the recursive nature of DNS lends itself nicely to mirroring configurations over to Cloudflare and only executing the authoritative switchover step when everything looked good. This was done twice: with the zone authoritative nameservers and with the GitHub Pages to Cloudflare Pages migration.
@@ -347,5 +485,3 @@ This ended up being a fairly seamless migration. The key insight is that the rec
 The main limitation I experienced was that Cloudflare doesn't natively support mounting a Pages project as a subdirectory of another, though Proxyflare works nicely here.
 
 I'm tentatively happy with how this is all running now, and it'll be interesting to see what more benefits I can get out of centralizing on Cloudflare infrastructure in the near future.
-
-My next task will likely be to migrate CatShare to something more serverless, as managing and maintaining a full VM and `docker-compose` with a `systemd` service and certificate renewals gets tedious. Fly.io seems potentially promising here, though I'd want to look for a free solution given how little traffic that site gets.
