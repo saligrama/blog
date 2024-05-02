@@ -85,4 +85,4 @@ Fall quarter consisted of a lot of heads-down building of Yoctogram's backend an
 
 Lastly, we started working on lecture slides for the early parts of the course in late December. By the time winter quarter started, we had mostly been able to pre-prepare all the material for the first few weeks of the course.
 
-*To be continued: reflections on teaching CS 40.*
+*To be continued: building CS 40 course infrastructure.*
